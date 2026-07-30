@@ -354,22 +354,46 @@ function renderRefugio(){
 
 /* ================= 7 · MAPA ================= */
 let map=null, heat=null, tileMapa=null, tileSat=null;
+let dotLayer=L.layerGroup(); const ZOOM_DOTS=13; let _dotData=[], _hd=[], _mx=1, _baseR=13;
 function initMap(){
   map=L.map('map',{scrollWheelZoom:false}).setView([-6.77,-79.84],11);
   tileMapa=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap, © CARTO',maxZoom:19});
   tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
   tileMapa.addTo(map);
+  map.on('zoomend',()=>{drawHeat();buildDots();});
   renderMapa();
 }
-function renderMapa(){
-  const pts=fp().filter(p=>p[3]>0).map(p=>[p[0],p[1],p[3]]);
+function drawHeat(){
   if(heat){map.removeLayer(heat);heat=null;}
-  heat=L.heatLayer(pts,{radius:24,blur:18,maxZoom:15,gradient:{0.2:'#2E9E8F',0.5:'#E8B04B',1:'#D1495B'}}).addTo(map);
-  if(pts.length){const b=L.latLngBounds(pts.map(p=>[p[0],p[1]]));map.fitBounds(b.pad(0.25));}
+  if(!_hd.length)return;
+  const z=(map.getZoom?map.getZoom():11);
+  const r=Math.max(9,Math.min(55,_baseR*Math.pow(1.35,z-9)));
+  heat=L.heatLayer(_hd,{radius:r,blur:r*0.7,max:_mx,minOpacity:.45,maxZoom:18,gradient:{0.2:'#2E9E8F',0.5:'#E8B04B',0.8:'#D1495B',1:'#A02B3C'}}).addTo(map);
+}
+function buildDots(){
+  dotLayer.clearLayers();
+  if(map.getZoom()<ZOOM_DOTS){ if(map.hasLayer(dotLayer))map.removeLayer(dotLayer); return; }
+  _dotData.forEach(p=>{const n=p[3];
+    const mk=L.circleMarker([p[0],p[1]],{radius:4,color:'#fff',weight:1,fillColor:'#E53935',fillOpacity:.9});
+    mk.bindPopup('<b style=\'color:#C0392B\'>'+n+' vivienda'+(n>1?'s':'')+' positiva'+(n>1?'s':'')+'</b><br>'+(p[4]||'')+'<br><span style=\'color:#6b7d79\'>'+(p[5]||'')+'</span>');
+    dotLayer.addLayer(mk);
+  });
+  if(!map.hasLayer(dotLayer))map.addLayer(dotLayer);
+}
+function renderMapa(){
+  const pts=fp().filter(p=>p[3]>0);
+  _hd=pts.map(p=>[p[0],p[1],p[3]]);
+  _mx=pts.reduce((m,p)=>Math.max(m,p[3]),1);
+  _baseR = state.eess!=='__all__'?22:(state.red!=='__all__'?16:13);
+  _dotData=pts;
+  drawHeat();
+  buildDots();
+  if(_hd.length){const b=L.latLngBounds(_hd.map(p=>[p[0],p[1]]));map.fitBounds(b.pad(0.25));}
 }
 function setFondo(t){
   $('fMapa').classList.toggle('on',t==='mapa'); $('fSat').classList.toggle('on',t==='sat');
   if(t==='mapa'){map.removeLayer(tileSat);tileMapa.addTo(map);} else {map.removeLayer(tileMapa);tileSat.addTo(map);}
+  if(heat)heat.bringToFront();
 }
 
 /* ================= 8 · ZONAS POR NIVEL ================= */
