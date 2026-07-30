@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerta Temprana de Brotes de Dengue — DESA (GERESA) Lambayeque</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css"/>
+</head>
+<body>
+<header><h1>Alerta Temprana de Brotes de Dengue — DESA (GERESA) Lambayeque</h1></header>
+<div class="wrap">
+
+  <!-- 1 · FILTROS -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">1</span><h2>Filtrar datos</h2></div>
+    <div class="filterbar">
+      <div class="fld"><label>Red</label>
+        <select id="fRed"><option value="__all__">Las tres redes</option></select></div>
+      <div class="fld"><label>Centro de salud</label>
+        <select id="fEess"><option value="__all__">Todos los centros</option></select></div>
+      <div class="fld"><label>Desde</label><input type="date" id="fDesde"></div>
+      <div class="fld"><label>Hasta</label><input type="date" id="fHasta"></div>
+      <button class="reset" id="fReset">Limpiar filtros</button>
+    </div>
+  </section>
+
+  <!-- 2 · RESUMEN DE ALERTA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">2</span><h2>Resumen de alerta</h2><span class="sub">Nivel de riesgo por índice aédico de los sectores</span></div>
+    <div id="banner" class="alertbanner ok"></div>
+    <div class="kpis2">
+      <div class="kpi"><div class="lab">Viviendas positivas</div><div class="val num" id="kPos">—</div><div class="foot">con larvas</div></div>
+      <div class="kpi"><div class="lab">Índice aédico</div><div class="val num" id="kIa">—</div><div class="foot">% positivas (riesgo)</div></div>
+    </div>
+    <div class="bands">
+      <div class="band alta" id="bandAlta"></div>
+      <div class="band mid"  id="bandMid"></div>
+      <div class="band low"  id="bandLow"></div>
+    </div>
+  </section>
+
+  <!-- 3 · CLIMA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">3</span><h2>Clima y riesgo ambiental</h2><span class="sub">Condiciones de los próximos días que favorecen los criaderos (humedad, lluvia y temperatura)</span></div>
+    <div class="card">
+      <div class="climahead">
+        <span class="lbl">Clima de: <span class="cen" id="climaCentro">—</span></span>
+        <button class="btn-mini" id="btnClima">↻ Actualizar clima</button>
+        <span class="lbl" id="climaHora"></span>
+      </div>
+      <div id="climaBox"><div class="climaerr">Cargando clima…</div></div>
+    </div>
+  </section>
+
+  <!-- 4 · HUMEDAD ESTRUCTURAL -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">4</span><h2>Humedad estructural y estrés hídrico</h2><span class="sub">Condiciones satelitales de humedad del terreno por centro (NDWI · LSWI) — favorabilidad ambiental para criaderos</span></div>
+    <div id="humedad"></div>
+  </section>
+
+  <!-- 5 · DINÁMICA TÉRMICA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">5</span><h2>Dinámica térmica de microclima</h2><span class="sub">Temperatura de superficie por centro (MODIS) — calor diurno, retención nocturna y amplitud térmica</span></div>
+    <div id="termico"></div>
+  </section>
+
+  <!-- 6 · REFUGIO ECOLÓGICO -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">6</span><h2>Disponibilidad de refugio ecológico</h2><span class="sub">Vegetación alrededor de las viviendas por centro (NDVI · FVC) — sombra y reposo para el mosquito adulto</span></div>
+    <div id="refugio"></div>
+  </section>
+
+  <!-- 7 · MAPA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">7</span><h2>Mapa de calor de criaderos</h2><span class="sub">Dónde se concentran las viviendas positivas a larvas</span></div>
+    <div class="card">
+      <div class="head"><h3>Mapa de calor de criaderos (viviendas positivas)</h3>
+        <div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);display:block;margin-bottom:4px">Fondo del mapa</label>
+        <div class="seg"><button id="fMapa" class="on">Mapa</button><button id="fSat">Satélite</button></div></div>
+      </div>
+      <div id="map"></div>
+      <div class="legend"><span>Menor</span><span class="bar"></span><span>Mayor concentración</span></div>
+    </div>
+  </section>
+
+  <!-- 8 · ZONAS POR NIVEL -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">8</span><h2>Zonas por nivel de alerta</h2><span class="sub">Prioriza las zonas en aumento · índice aédico MINSA/OPS</span></div>
+    <div id="zonas"></div>
+  </section>
+
+  <!-- 9 · EVOLUCIÓN -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">9</span><h2>Evolución del índice aédico</h2><span class="sub">El riesgo (% de viviendas positivas) mes a mes. Se ajusta a los filtros que elijas.</span></div>
+    <div class="card"><div class="trend"><canvas id="iaChart"></canvas></div></div>
+  </section>
+
+  <!-- 10 · RECIPIENTES -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">10</span><h2>Recipientes por establecimiento</h2><span class="sub">Criaderos positivos a larvas por tipo de recipiente</span></div>
+    <div class="recipwrap">
+      <div class="recipmeta" id="recipMeta"></div>
+      <div class="recipgrid" id="recipGrid"></div>
+      <div class="reciptotal" id="recipTotal"></div>
+    </div>
+  </section>
+
+  <!-- 11 · DESCARGA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">11</span><h2>Descargar base de datos</h2></div>
+    <div class="dlbar">
+      <div class="dltext"><strong>Descargar análisis de alerta (Excel)</strong>
+        <span>Si no eliges filtros, baja <b>todo</b> (las 3 redes). Si eliges algún filtro, baja <b>solo lo que filtraste</b>. Incluye sector, positivas, inspeccionadas, índice aédico y nivel de alerta.</span></div>
+      <button class="btn" id="btnDL">⬇ Descargar Excel</button>
+    </div>
+    <div class="foot" id="foot"></div>
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="js/datos.js"></script>
+<script src="js/alerta.js"></script>
+</body></html>
