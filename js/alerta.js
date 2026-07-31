@@ -90,6 +90,31 @@ function fillCentros(){
 }
 
 /* ================= 2 · RESUMEN DE ALERTA ================= */
+function renderHero(){
+  const secs=sectores();
+  const A=secs.filter(s=>s.nivel==='alta'), M=secs.filter(s=>s.nivel==='mid'), L=secs.filter(s=>s.nivel==='low');
+  const sp=a=>a.reduce((t,s)=>t+s.pos,0);
+  const nA=A.length,nM=M.length,nL=L.length,tot=nA+nM+nL;
+  const amb = state.eess!=='__all__'?state.eess:(state.red!=='__all__'?'RED '+state.red:'las tres redes');
+  const box=$('heroBox');
+  const seg=(n,cls,lbl)=> n>0?'<div class="risseg '+cls+'" style="flex:'+n+'" title="'+lbl+': '+n+'">'+(n/tot>=0.06?n:'')+'</div>':'';
+  if(!tot){ box.innerHTML='<div class="herotop"><span class="herobig">Sin sectores con Control larvario</span><span class="herocap">'+amb+'</span></div>'; }
+  else{
+    box.innerHTML='<div class="herotop"><span class="herobig">'+fmt(tot)+' sectores con Control larvario</span>'+
+      '<span class="herocap">distribución por nivel de riesgo · '+amb+' · '+state.d1+' a '+state.d2+'</span></div>'+
+      '<div class="risbar">'+seg(nA,'alta','Alerta alta')+seg(nM,'mid','A vigilar')+seg(nL,'low','Controlados')+'</div>'+
+      '<div class="risleg">'+
+        '<div><span class="sw alta"></span><b>'+nA+'</b> alerta alta · '+fmt(sp(A))+' positivas</div>'+
+        '<div><span class="sw mid"></span><b>'+nM+'</b> a vigilar · '+fmt(sp(M))+' positivas</div>'+
+        '<div><span class="sw low"></span><b>'+nL+'</b> controlados · '+fmt(sp(L))+' positivas</div>'+
+      '</div>';
+  }
+  const pill=$('statePill'), txt=$('stateTxt');
+  if(nA>0){ pill.className='statuspill alta'; txt.textContent='Alerta roja'; }
+  else if(nM>0){ pill.className='statuspill mid'; txt.textContent='Vigilancia'; }
+  else { pill.className='statuspill low'; txt.textContent='Controlado'; }
+}
+
 function renderResumen(){
   const secs=sectores();
   const alta=secs.filter(s=>s.nivel==='alta'), mid=secs.filter(s=>s.nivel==='mid'), low=secs.filter(s=>s.nivel==='low');
@@ -114,10 +139,6 @@ function renderResumen(){
       '<div class="sub">Ningún sector alcanza 4% de índice aédico en el periodo. Mantener la vigilancia rutinaria.</div></div>';
   }
 
-  // Tarjetas de conteo
-  $('bandAlta').innerHTML='<div class="bv num">'+alta.length+'</div><div class="bl"><span class="dot"></span>Sectores alerta alta</div><div class="bf num">'+fmt(sum(alta))+' viviendas positivas</div>';
-  $('bandMid').innerHTML ='<div class="bv num">'+mid.length +'</div><div class="bl"><span class="dot"></span>Sectores a vigilar</div><div class="bf num">'+fmt(sum(mid))+' viviendas positivas</div>';
-  $('bandLow').innerHTML ='<div class="bv num">'+low.length +'</div><div class="bl"><span class="dot"></span>Sectores controlados</div><div class="bf num">'+fmt(sum(low))+' viviendas positivas</div>';
 }
 
 /* ================= 3 · CLIMA ================= */
@@ -500,6 +521,7 @@ function descargar(){
 /* ================= REFRESH GLOBAL ================= */
 function refresh(){
   renderResumen();
+  renderHero();
   renderHumedad();
   renderTermico();
   renderRefugio();
