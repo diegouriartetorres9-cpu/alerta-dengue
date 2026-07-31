@@ -382,6 +382,7 @@ function initMap(){
   tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
   tileMapa.addTo(map);
   map.on('zoomend',()=>{drawHeat();buildDots();});
+  addFullscreenControl();
   renderMapa();
 }
 function drawHeat(){
@@ -411,6 +412,27 @@ function renderMapa(){
   buildDots();
   if(_hd.length){const b=L.latLngBounds(_hd.map(p=>[p[0],p[1]]));map.fitBounds(b.pad(0.25));}
 }
+function addFullscreenControl(){
+  const Ctl=L.Control.extend({options:{position:"topright"},
+    onAdd:function(){
+      const el=L.DomUtil.create("a","leaflet-fs-btn");
+      el.href="#"; el.title="Pantalla completa"; el.innerHTML="\u2922";
+      el.style.fontSize="18px"; el.style.color="#12302C"; el.style.fontWeight="700";
+      L.DomEvent.on(el,"click",L.DomEvent.stop);
+      L.DomEvent.on(el,"click",toggleFull);
+      return el;
+    }});
+  map.addControl(new Ctl());
+}
+function toggleFull(){
+  const el=document.getElementById("map");
+  const on=el.classList.toggle("map-fullscreen");
+  document.querySelectorAll(".leaflet-fs-btn").forEach(b=>{ b.innerHTML=on?"\u2921":"\u2922"; });
+  setTimeout(()=>{ map.invalidateSize(); drawHeat(); buildDots();
+    if(_hd&&_hd.length){ map.fitBounds(L.latLngBounds(_hd.map(p=>[p[0],p[1]])).pad(0.15)); } },120);
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ const el=document.getElementById("map"); if(el&&el.classList.contains("map-fullscreen")) toggleFull(); }});
+
 function setFondo(t){
   $('fMapa').classList.toggle('on',t==='mapa'); $('fSat').classList.toggle('on',t==='sat');
   if(t==='mapa'){map.removeLayer(tileSat);tileMapa.addTo(map);} else {map.removeLayer(tileMapa);tileSat.addTo(map);}
