@@ -55,40 +55,9 @@
     </div>
   </section>
 
-  <!-- 3 · CLIMA -->
+  <!-- 3 · MAPA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">3</span><h2>Clima y riesgo ambiental</h2><span class="sub">Condiciones de los próximos días que favorecen los criaderos (humedad, lluvia y temperatura)</span></div>
-    <div class="card">
-      <div class="climahead">
-        <span class="lbl">Clima de: <span class="cen" id="climaCentro">—</span></span>
-        <button class="btn-mini" id="btnClima">↻ Actualizar clima</button>
-        <span class="lbl" id="climaHora"></span>
-      </div>
-      <div id="climaBox"><div class="climaerr">Cargando clima…</div></div>
-    </div>
-  </section>
-
-  <!-- 4 · HUMEDAD ESTRUCTURAL -->
-  <section class="section">
-    <div class="sectitle"><span class="secnum">4</span><h2>Humedad estructural y estrés hídrico</h2><span class="sub">Condiciones satelitales de humedad del terreno por centro (NDWI · LSWI) — favorabilidad ambiental para criaderos</span></div>
-    <div id="humedad"></div>
-  </section>
-
-  <!-- 5 · DINÁMICA TÉRMICA -->
-  <section class="section">
-    <div class="sectitle"><span class="secnum">5</span><h2>Dinámica térmica de microclima</h2><span class="sub">Temperatura de superficie por centro (MODIS) — calor diurno, retención nocturna y amplitud térmica</span></div>
-    <div id="termico"></div>
-  </section>
-
-  <!-- 6 · REFUGIO ECOLÓGICO -->
-  <section class="section">
-    <div class="sectitle"><span class="secnum">6</span><h2>Disponibilidad de refugio ecológico</h2><span class="sub">Vegetación alrededor de las viviendas por centro (NDVI · FVC) — sombra y reposo para el mosquito adulto</span></div>
-    <div id="refugio"></div>
-  </section>
-
-  <!-- 7 · MAPA -->
-  <section class="section">
-    <div class="sectitle"><span class="secnum">7</span><h2>Mapa de calor de criaderos</h2><span class="sub">Dónde se concentran las viviendas positivas a larvas</span></div>
+    <div class="sectitle"><span class="secnum">3</span><h2>Mapa de calor de criaderos</h2><span class="sub">Dónde se concentran las viviendas positivas a larvas</span></div>
     <div class="card">
       <div class="head"><h3>Mapa de calor de criaderos (viviendas positivas)</h3>
         <div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);display:block;margin-bottom:4px">Fondo del mapa</label>
@@ -99,26 +68,57 @@
     </div>
   </section>
 
-  <!-- 8 · ZONAS POR NIVEL -->
+  <!-- 4 · ZONAS POR NIVEL -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">8</span><h2>Zonas por nivel de alerta</h2><span class="sub">Prioriza las zonas en aumento · índice aédico MINSA/OPS</span></div>
+    <div class="sectitle"><span class="secnum">4</span><h2>Zonas por nivel de alerta</h2><span class="sub">Prioriza las zonas en aumento · índice aédico MINSA/OPS</span></div>
     <div id="zonas"></div>
   </section>
 
-  <!-- 9 · EVOLUCIÓN -->
+  <!-- 5 · CLIMA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">9</span><h2>Evolución del índice aédico</h2><span class="sub">El riesgo (% de viviendas positivas) mes a mes. Se ajusta a los filtros que elijas.</span></div>
-    <div class="card"><div class="trend"><canvas id="iaChart"></canvas></div></div>
+    <div class="sectitle"><span class="secnum">5</span><h2>Clima y riesgo ambiental</h2><span class="sub">Condiciones de los próximos días que favorecen los criaderos (humedad, lluvia y temperatura)</span></div>
+    <div class="card">
+      <div class="climahead">
+        <span class="lbl">Clima de: <span class="cen" id="climaCentro">—</span></span>
+        <button class="btn-mini" id="btnClima">↻ Actualizar clima</button>
+        <span class="lbl" id="climaHora"></span>
+      </div>
+      <div id="climaBox"><div class="climaerr">Cargando clima…</div></div>
+    </div>
   </section>
 
-  <!-- 10 · RECIPIENTES -->
+  <!-- 6 · HUMEDAD ESTRUCTURAL -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">10</span><h2>Recipientes por establecimiento</h2><span class="sub">Criaderos positivos a larvas por tipo de recipiente</span></div>
+    <div class="sectitle"><span class="secnum">6</span><h2>Humedad estructural y estrés hídrico</h2><span class="sub">Condiciones satelitales de humedad del terreno por centro (NDWI · LSWI) — favorabilidad ambiental para criaderos</span></div>
+    <div id="humedad"></div>
+  </section>
+
+  <!-- 7 · DINÁMICA TÉRMICA -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">7</span><h2>Dinámica térmica de microclima</h2><span class="sub">Temperatura de superficie por centro (MODIS) — calor diurno, retención nocturna y amplitud térmica</span></div>
+    <div id="termico"></div>
+  </section>
+
+  <!-- 8 · REFUGIO ECOLÓGICO -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">8</span><h2>Disponibilidad de refugio ecológico</h2><span class="sub">Vegetación alrededor de las viviendas por centro (NDVI · FVC) — sombra y reposo para el mosquito adulto</span></div>
+    <div id="refugio"></div>
+  </section>
+
+  <!-- 9 · RECIPIENTES -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">9</span><h2>Recipientes por establecimiento</h2><span class="sub">Criaderos positivos a larvas por tipo de recipiente</span></div>
     <div class="recipwrap">
       <div class="recipmeta" id="recipMeta"></div>
       <div class="recipgrid" id="recipGrid"></div>
       <div class="reciptotal" id="recipTotal"></div>
     </div>
+  </section>
+
+  <!-- 10 · EVOLUCIÓN -->
+  <section class="section">
+    <div class="sectitle"><span class="secnum">10</span><h2>Evolución del índice aédico</h2><span class="sub">El riesgo (% de viviendas positivas) mes a mes. Se ajusta a los filtros que elijas.</span></div>
+    <div class="card"><div class="trend"><canvas id="iaChart"></canvas></div></div>
   </section>
 
   <!-- 11 · DESCARGA -->
