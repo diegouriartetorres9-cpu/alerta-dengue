@@ -207,3 +207,8 @@ table.tbl tr:last-child td{border-bottom:0}
 .risleg .sw.alta{background:var(--high)}.risleg .sw.mid{background:var(--mid)}.risleg .sw.low{background:var(--low)}
 .risleg b{color:#fff;font-family:'IBM Plex Mono',monospace}
 @media(max-width:560px){.hero .herobig{font-size:21px}}
+
+/* ================= MAPA · PANTALLA COMPLETA (igual que el panel) ================= */
+.leaflet-fs-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.35);cursor:pointer;text-decoration:none}
+.leaflet-fs-btn:hover{background:#f4f4f4}
+.map-fullscreen{position:fixed !important;inset:0 !important;width:100vw !important;height:100vh !important;z-index:99999 !important;border-radius:0 !important;margin:0 !important}
