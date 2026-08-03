@@ -99,9 +99,9 @@ function renderHero(){
   const amb = state.eess!=='__all__'?state.eess:(state.red!=='__all__'?'RED '+state.red:'las tres redes');
   const box=$('heroBox');
   const seg=(n,cls,lbl)=> n>0?'<div class="risseg '+cls+'" style="flex:'+n+'" title="'+lbl+': '+n+'">'+(n/tot>=0.06?n:'')+'</div>':'';
-  if(!tot){ box.innerHTML='<div class="herotop"><span class="herobig">Sin sectores con Control larvario ni Recuperación</span><span class="herocap">'+amb+'</span></div>'; }
+  if(!tot){ box.innerHTML='<div class="herotop"><span class="herobig">Sin sectores para este filtro</span><span class="herocap">'+amb+'</span></div>'; }
   else{
-    box.innerHTML='<div class="herotop"><span class="herobig">'+fmt(tot)+' sectores con Control larvario y Recuperación</span>'+
+    box.innerHTML='<div class="herotop"><span class="herobig">'+fmt(tot)+' sectores evaluados</span>'+
       '<span class="herocap">distribución por nivel de riesgo · '+amb+' · '+state.d1+' a '+state.d2+'</span></div>'+
       '<div class="risbar">'+seg(nA,'alta','Alerta alta')+seg(nM,'mid','A vigilar')+seg(nL,'low','Controlados')+'</div>'+
       '<div class="risleg">'+
@@ -133,7 +133,7 @@ function renderResumen(){
   if(alta.length){
     bn.className='alertbanner alta';
     bn.innerHTML='<div class="ico">⚠️</div><div><div class="msg">En '+ambito+', '+alta.length+' sector(es) concentran los criaderos — priorizar ahí.</div>'+
-      '<div class="sub">Suman '+fmt(sum(alta))+' viviendas positivas a larvas (actividades: Control larvario y Recuperación).</div></div>';
+      '<div class="sub">Suman '+fmt(sum(alta))+' viviendas positivas a larvas.</div></div>';
   }else{
     bn.className='alertbanner ok';
     bn.innerHTML='<div class="ico">✓</div><div><div class="msg">Sin sectores en alerta alta en '+ambito+'.</div>'+
@@ -445,7 +445,7 @@ function renderZonas(){
   const secs=sectores();
   const alta=secs.filter(s=>s.nivel==='alta'), mid=secs.filter(s=>s.nivel==='mid'), low=secs.filter(s=>s.nivel==='low');
   const box=$('zonas');
-  if(!secs.length){ box.innerHTML='<div class="empty">No hay datos de sectores para este filtro. Elige un centro de salud y un rango de fechas con registros de Control larvario o Recuperación.</div>'; return; }
+  if(!secs.length){ box.innerHTML='<div class="empty">No hay datos de sectores para este filtro. Elige un centro de salud y un rango de fechas con registros.</div>'; return; }
   const CAP_CARDS=12, CAP_ROWS=30;
   let html='';
   // Alta -> tarjetas (tope CAP_CARDS, ya vienen ordenadas por IA desc)
@@ -455,7 +455,6 @@ function renderZonas(){
     html+='<div class="sectorcards">'+show.map(s=>
       '<div class="sector"><div class="snm">Sector '+s.sector+'</div><div class="sce">'+s.eess+' · '+s.red+'</div>'+
       '<div class="sia num">'+s.ia.toFixed(2)+'% <small>índice aédico</small></div>'+
-      '<div class="sact">actividad: Control larvario / Recuperación</div>'+
       '<div class="sfoot"><div class="kp"><b class="num">'+fmt(s.pos)+'</b><span class="kk">viviendas positivas</span></div>'+
       '<div><b class="num">'+fmt(s.insp)+'</b><span class="kk">inspeccionadas</span></div></div></div>').join('')+'</div>';
     if(alta.length>CAP_CARDS) html+='<div class="empty">Mostrando los '+CAP_CARDS+' de mayor índice aédico. Hay '+alta.length+' sectores en alerta alta en total — elige un centro de salud para verlos por separado, o descarga el Excel para la lista completa.</div>';
@@ -503,7 +502,7 @@ function renderRecip(){
     for(let k=0;k<NT;k++){ins[k]+=r[3+k];pos[k]+=r[3+NT+k];}
   });
   const ambito = state.eess!=='__all__' ? state.eess : (state.red!=='__all__'?'RED '+state.red:'las tres redes');
-  $('recipMeta').innerHTML='<b>'+ambito+'</b> · Control larvario y Recuperación · periodo elegido';
+  $('recipMeta').innerHTML='<b>'+ambito+'</b> · periodo elegido';
   const cards=RECIP.tipos.map((t,k)=>{
     const p=pos[k], i=ins[k], pct=i?(p/i*100):0;
     const cls=pct>=2?'alta':pct>=1?'mid':'low';
@@ -554,7 +553,7 @@ function refresh(){
   renderRecip();
   // footer contextual
   const amb = state.eess!=='__all__'?state.eess:(state.red!=='__all__'?'RED '+state.red:'las tres redes');
-  $('foot').textContent='Vista de '+amb+' (actividades Control larvario y Recuperación, '+state.d1+' a '+state.d2+'). Los sectores se clasifican por su índice aédico según la norma MINSA/OPS: bajo <1%, medio/alerta ≥1% y <4%, alto ≥4%.';
+  $('foot').textContent='Vista de '+amb+' ('+state.d1+' a '+state.d2+'). Los sectores se clasifican por su índice aédico según la norma MINSA/OPS: bajo <1%, medio/alerta ≥1% y <4%, alto ≥4%.';
 }
 
 /* ================= ARRANQUE ================= */
