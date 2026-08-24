@@ -56,8 +56,10 @@ function fp(){ return PUNTOS.filter(p=> (state.red==='__all__'||p[6]===state.red
 /* Agregado de sectores segun filtro -> [{eess,red,dist,sector,insp,pos,ia,nivel}] */
 function sectores(){
   const acc={};
+  const conPoligono=Object.keys(SECTORES_POR_CENTRO);
   for(const eess in SEC){
     if(!eessInScope(eess)) continue;
+    if(conPoligono.includes(eess)) continue;   // estos centros se ubican por polígono (abajo), no por el texto libre del sector
     for(const r of SEC[eess]){            // r = [sector,fecha,insp,pos]
       if(!inRange(r[1])) continue;
       const sec=r[0]; if(!sec) continue;
@@ -66,6 +68,25 @@ function sectores(){
       acc[k].insp+=r[2]; acc[k].pos+=r[3];
     }
   }
+  /* Centros con polígono dibujado (Cerropón, José Olaya, La Victoria S.II): el sector se determina
+     por ubicación (el punto cae dentro del polígono del sector), no por el texto que escribió el
+     brigadista — así se evitan sectores mal tipeados o registrados como rango (p.ej. "I - V"). */
+  conPoligono.forEach(eess=>{
+    if(!eessInScope(eess)) return;
+    const feats=SECTORES_POR_CENTRO[eess];
+    const pts=PUNTOS.filter(p=>p[4]===eess && inRange(p[5]));
+    if(!pts.length) return;
+    const red=META.e2r[eess]||'', dist=META.e2d[eess]||'';
+    const byName={};
+    feats.forEach(f=>{ byName[f.properties.name]={eess,red,dist,sector:f.properties.name,insp:0,pos:0}; });
+    pts.forEach(p=>{
+      for(const f of feats){
+        if(_pipRing(p[1],p[0],f.geometry.coordinates[0])){ byName[f.properties.name].insp+=p[2]; byName[f.properties.name].pos+=p[3]; break; }
+      }
+      // los puntos que no caen en ningún polígono del centro no se muestran como sector (quedan fuera de esta vista).
+    });
+    Object.values(byName).forEach(o=>{ acc[eess+'||'+o.sector]=o; });
+  });
   const arr=Object.values(acc).filter(o=>o.insp>0);
   arr.forEach(o=>{ o.ia=o.pos/o.insp*100; o.nivel=nivelIA(o.ia); });
   arr.sort((a,b)=>b.ia-a.ia);
