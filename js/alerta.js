@@ -458,7 +458,10 @@ function updateSectorLegend(){
 
 function initMap(){
   map=L.map('map',{scrollWheelZoom:false}).setView([-6.77,-79.84],11);
-  tileMapa=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap, © CARTO',maxZoom:19});
+  tileMapa=L.layerGroup([
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}),
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19})
+  ]);
   tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
   tileMapa.addTo(map);
   map.on('zoomend',()=>{drawHeat();buildDots();updateSectorMapa();});
