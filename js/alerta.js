@@ -557,7 +557,7 @@ function tablaZona(arr,cls,cap){
   const show = cap? arr.slice(0,cap) : arr;
   let t='<table class="tbl"><thead><tr><th>Sector</th>'+(multi?'<th>Centro</th>':'')+
     '<th class="r">Positivas</th><th class="r">Inspeccionadas</th><th class="r">Índice aédico</th></tr></thead><tbody>'+
-    show.map(s=>'<tr><td>Sector '+s.sector+'</td>'+(multi?'<td>'+s.eess+'</td>':'')+
+    show.map(s=>'<tr><td>'+s.sector+'</td>'+(multi?'<td>'+s.eess+'</td>':'')+
       '<td class="r num">'+fmt(s.pos)+'</td><td class="r num">'+fmt(s.insp)+'</td>'+
       '<td class="r num iaval '+cls+'">'+s.ia.toFixed(2)+'%</td></tr>').join('')+'</tbody></table>';
   if(cap&&arr.length>cap) t+='<div class="empty">Mostrando '+cap+' de '+arr.length+'. Elige un centro o descarga el Excel para la lista completa.</div>';
