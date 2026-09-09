@@ -456,13 +456,15 @@ function updateSectorLegend(){
   if(!wasShown)setTimeout(()=>map.invalidateSize(),60);
 }
 
+const ZOOM_MAX_MAPA=16, ZOOM_MAX_SAT=19; // el fondo "Mapa" (Esri Light Gray) no tiene detalle real más allá de z16;
+// pasado ese nivel las teselas salen en blanco y el mapa "se pierde". El fondo "Satélite" sí llega a z19.
 function initMap(){
-  map=L.map('map',{scrollWheelZoom:false}).setView([-6.77,-79.84],11);
+  map=L.map('map',{scrollWheelZoom:false,maxZoom:ZOOM_MAX_MAPA}).setView([-6.77,-79.84],11);
   tileMapa=L.layerGroup([
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}),
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19})
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:ZOOM_MAX_MAPA}),
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:ZOOM_MAX_MAPA})
   ]);
-  tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
+  tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:ZOOM_MAX_SAT});
   tileMapa.addTo(map);
   map.on('zoomend',()=>{drawHeat();buildDots();updateSectorMapa();});
   addFullscreenControl();
@@ -520,7 +522,8 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ const el=document
 
 function setFondo(t){
   $('fMapa').classList.toggle('on',t==='mapa'); $('fSat').classList.toggle('on',t==='sat');
-  if(t==='mapa'){map.removeLayer(tileSat);tileMapa.addTo(map);} else {map.removeLayer(tileMapa);tileSat.addTo(map);}
+  if(t==='mapa'){map.removeLayer(tileSat);tileMapa.addTo(map);map.setMaxZoom(ZOOM_MAX_MAPA);}
+  else {map.removeLayer(tileMapa);tileSat.addTo(map);map.setMaxZoom(ZOOM_MAX_SAT);}
   if(heat)heat.bringToFront();
 }
 
