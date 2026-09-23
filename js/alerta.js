@@ -109,6 +109,68 @@ function fillCentros(){
   META.eess.filter(e=>state.red==='__all__'||META.e2r[e]===state.red).forEach(e=>{
     const o=document.createElement('option');o.value=e;o.textContent=e;cs.appendChild(o);
   });
+  comboCentro();
+}
+
+/* ===== Lista desplegable propia para "Centro de salud" =====
+   La lista nativa del navegador se abre hacia ARRIBA cuando no hay espacio abajo (con 111 centros
+   pasa casi siempre). Esta lista siempre se abre hacia ABAJO y trae un buscador.
+   El <select id="fEess"> original sigue existiendo (oculto) y guarda el valor: al elegir se dispara
+   su evento 'change', así que el resto del tablero no cambia. */
+let _combo=null;
+function comboCentro(){
+  const sel=$('fEess');
+  if(!_combo){
+    const st=document.createElement('style');st.textContent=
+      '.combo{position:relative;min-width:260px}'+
+      '.combo-btn{width:100%;text-align:left;font-family:inherit;font-size:14px;padding:9px 30px 9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+      '.combo-btn:after{content:"";position:absolute;right:12px;top:50%;margin-top:-3px;border:5px solid transparent;border-top-color:var(--ink2)}'+
+      '.combo.open .combo-btn{outline:2px solid var(--teal);outline-offset:1px}'+
+      '.combo-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:1500;width:max(100%,340px);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.18);overflow:hidden}'+
+      '.combo.open .combo-pop{display:block}'+
+      '.combo-q{width:100%;border:0;border-bottom:1px solid var(--line);padding:10px 12px;font-family:inherit;font-size:13.5px;outline:none}'+
+      '.combo-list{max-height:340px;overflow-y:auto;padding:4px 0}'+
+      '.combo-grp{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);padding:8px 12px 3px}'+
+      '.combo-opt{padding:7px 12px;font-size:13.5px;cursor:pointer;color:var(--ink)}'+
+      '.combo-opt:hover,.combo-opt.act{background:#F3E6E9}'+
+      '.combo-opt.sel{font-weight:700;color:var(--teal)}'+
+      '.combo-empty{padding:10px 12px;font-size:13px;color:var(--ink2)}';
+    document.head.appendChild(st);
+    const w=document.createElement('div');w.className='combo';
+    w.innerHTML='<button type="button" class="combo-btn"></button><div class="combo-pop"><input class="combo-q" type="text" placeholder="Buscar centro de salud…"><div class="combo-list"></div></div>';
+    sel.style.display='none'; sel.parentNode.insertBefore(w,sel.nextSibling);
+    const btn=w.querySelector('.combo-btn'), q=w.querySelector('.combo-q'), list=w.querySelector('.combo-list');
+    const cerrar=()=>w.classList.remove('open');
+    const elegir=v=>{cerrar(); if(sel.value!==v){sel.value=v; sel.dispatchEvent(new Event('change'));} comboCentro();};
+    const pintar=()=>{
+      const t=q.value.trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      let opts=[...sel.options].filter(o=>!t||o.value==='__all__'||o.textContent.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(t));
+      if(state.red==='__all__'){ // agrupado por red (en el orden de META.redes), alfabético dentro de cada red
+        const ri=o=>META.redes.indexOf(META.e2r[o.value]);
+        opts=opts.filter(o=>o.value==='__all__').concat(opts.filter(o=>o.value!=='__all__').sort((a,b)=>(ri(a)-ri(b))||a.textContent.localeCompare(b.textContent)));
+      }
+      let html='', red='';
+      opts.forEach(o=>{
+        if(o.value!=='__all__'&&state.red==='__all__'){const r=META.e2r[o.value]||'';if(r!==red){red=r;html+='<div class="combo-grp">Red '+r+'</div>';}}
+        html+='<div class="combo-opt'+(o.value===sel.value?' sel':'')+'" data-v="'+o.value.replace(/"/g,'&quot;')+'">'+o.textContent+'</div>';
+      });
+      if(opts.length<=1&&t) html+='<div class="combo-empty">Ningún centro coincide con la búsqueda.</div>';
+      list.innerHTML=html;
+      const a=list.querySelector('.combo-opt.sel'); if(a&&!t) a.scrollIntoView({block:'nearest'});
+    };
+    btn.addEventListener('click',()=>{ if(w.classList.toggle('open')){ q.value=''; pintar(); setTimeout(()=>q.focus(),0);} });
+    q.addEventListener('input',pintar);
+    q.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){cerrar();btn.focus();}
+      if(e.key==='Enter'){const o=[...list.querySelectorAll('.combo-opt')].find(x=>x.dataset.v!=='__all__')||list.querySelector('.combo-opt'); if(o) elegir(o.dataset.v);}
+    });
+    list.addEventListener('click',e=>{const o=e.target.closest('.combo-opt'); if(o) elegir(o.dataset.v);});
+    document.addEventListener('click',e=>{ if(!w.contains(e.target)) cerrar(); });
+    _combo={w,btn};
+  }
+  const o=sel.options[sel.selectedIndex];
+  _combo.btn.textContent=o?o.textContent:'Todos los centros';
+  _combo.btn.title=_combo.btn.textContent;
 }
 
 /* ================= 2 · RESUMEN DE ALERTA ================= */
@@ -463,7 +525,15 @@ const ZOOM_MAX_MAPA=19, ZOOM_MAX_SAT=19; // fondo "Mapa" = OpenStreetMap (igual 
 function initMap(){
   map=L.map('map',{scrollWheelZoom:false,maxZoom:ZOOM_MAX_MAPA}).setView([-6.77,-79.84],11);
   tileMapa=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:ZOOM_MAX_MAPA});
-  tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:ZOOM_MAX_SAT});
+  // Satélite = imagen Esri + capa de nombres de calles/lugares encima (igual que el panel).
+  // La capa de nombres tiene teselas reales hasta z16; de ahí a z19 Leaflet agranda la última
+  // (maxNativeZoom:16), así los nombres siguen visibles al acercarse en vez de desaparecer.
+  tileSat=L.layerGroup([
+    // maxNativeZoom:16 (igual que el panel): en zonas rurales Esri no tiene imagen más allá de z16 y
+    // salía "Map data not yet available"; así Leaflet agranda la última imagen real.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri, Maxar, Earthstar Geographics',maxZoom:ZOOM_MAX_SAT,maxNativeZoom:16}),
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',{maxZoom:ZOOM_MAX_SAT,maxNativeZoom:16,opacity:0.9})
+  ]);
   tileMapa.addTo(map);
   map.on('zoomend',()=>{drawHeat();buildDots();updateSectorMapa();});
   addFullscreenControl();
@@ -499,7 +569,7 @@ function _piFor(eess){ // null si aún no cargó el archivo
 function _refreshInd(){ // al terminar de cargar: redibuja puntos y burbujas sin mover el mapa
   if(!map||state.eess==='__all__')return;
   const pi=_piFor(state.eess);
-  if(pi!==null){_dotData=pi;_dotUsingInd=true;}
+  if(pi!==null){_dotData=pi;_dotUsingInd=true;_hd=pi.map(r=>[r[0],r[1],1]);drawHeat();}
   buildDots(); updateSectorMapa();
 }
 function buildDots(){
@@ -530,13 +600,22 @@ function renderMapa(){
   if(state.eess!=='__all__'){
     const pi=_piFor(state.eess);
     if(pi===null) _piLoadScript(_refreshInd);        // mientras carga, se usa el punto agrupado
-    else { _dotData=pi; _dotUsingInd=true; }
+    else { _dotData=pi; _dotUsingInd=true; _hd=pi.map(r=>[r[0],r[1],1]); } // calor en la misma posición que los puntos rojos
   }
   drawHeat();
   buildDots();
-  if(_hd.length){const b=L.latLngBounds(_hd.map(p=>[p[0],p[1]]));map.fitBounds(b.pad(0.25));}
+  // Encuadre del mapa:
+  //  - centro con sectores dibujados (GeoJSON): se encuadran sus polígonos, a un zoom donde se ven
+  //    las burbujas por sector (antes se encuadraban solo las positivas: con 1 sola positiva el mapa
+  //    se iba al zoom máximo y solo se veía un punto rojo, sin sectores).
+  //  - otro centro con positivas: se encuadran las positivas, sin pasar de z16.
+  //  - centro sin positivas: se centra en la ubicación del centro.
+  updateSectorLegend(); map.invalidateSize(); // primero el cuadro de viviendas (angosta el mapa), luego encuadrar
+  const feats=(state.eess!=='__all__')?SECTORES_POR_CENTRO[state.eess]:null;
+  if(feats&&feats.length){ map.fitBounds(L.geoJSON({type:'FeatureCollection',features:feats}).getBounds().pad(0.08),{maxZoom:SECT_UMBRAL-1}); }
+  else if(_hd.length){const b=L.latLngBounds(_hd.map(p=>[p[0],p[1]]));map.fitBounds(b.pad(0.25),{maxZoom:16});}
+  else if(state.eess!=='__all__'&&COORD_CENTROS[state.eess]){ map.setView(COORD_CENTROS[state.eess],14); }
   updateSectorMapa();
-  updateSectorLegend();
 }
 function addFullscreenControl(){
   const Ctl=L.Control.extend({options:{position:"topright"},
@@ -700,7 +779,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     let mn='9999',mx='0000';PUNTOS.forEach(p=>{if(p[5]<mn)mn=p[5];if(p[5]>mx)mx=p[5];});
     if(META.fechaMax)mx=META.fechaMax;
     state.d1=mn;state.d2=mx;
-    $('fRed').value='__all__';fillCentros();$('fEess').value='__all__';$('fDesde').value=mn;$('fHasta').value=mx;
+    $('fRed').value='__all__';fillCentros();$('fEess').value='__all__';comboCentro();$('fDesde').value=mn;$('fHasta').value=mx;
     refresh();cargarClima();
   });
   $('fMapa').addEventListener('click',()=>setFondo('mapa'));
