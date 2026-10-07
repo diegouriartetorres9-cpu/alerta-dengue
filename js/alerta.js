@@ -314,8 +314,7 @@ const LEY_SAT={
 function leyendaSat(k){
   const el=$(k); if(!el||document.getElementById('ley-'+k)) return;
   const d=document.createElement('div'); d.id='ley-'+k; d.className='leyclima leysat';
-  d.innerHTML=LEY_SAT[k].map(([c,t,x])=>'<span class="li">'+(c?'<span class="sq" style="background:var(--'+c+')"></span>':'')+'<b>'+t+'</b> · '+x+'</span>').join('')+
-    '<span class="li nota">Comparado entre tus centros, no es un umbral oficial</span>';
+  d.innerHTML=LEY_SAT[k].map(([c,t,x])=>'<span class="li">'+(c?'<span class="sq" style="background:var(--'+c+')"></span>':'')+'<b>'+t+'</b> · '+x+'</span>').join('');
   el.insertAdjacentElement('afterend',d);
 }
 function insertarLeyendas(){ leyendaClima(); leyendaSat('humedad'); leyendaSat('termico'); leyendaSat('refugio'); }
@@ -328,7 +327,7 @@ function centrosScope(){
 }
 function renderHumedad(){
   const box=$('humedad');
-  const nota='<div class="humnota">Medido con satélite (Sentinel-2 · Landsat-8) sobre la huella de casas de cada centro. Los niveles son un <b>ranking relativo entre centros</b> (tercios), no un umbral oficial. Se actualiza cada quincena, aparte de la data diaria.</div>';
+  const nota='';
 
   if(state.eess!=='__all__'){
     const h=HUMEDAD[state.eess];
@@ -341,11 +340,11 @@ function renderHumedad(){
       : (cls==='alta') ? '<div class="humcombo mid">Humedad ambiental alta. Vigilar aunque el índice aédico esté controlado ('+ia.toFixed(2)+'%): el terreno favorece criaderos.</div>'
       : '';
     box.innerHTML='<div class="card"><div class="humcard '+cls+'">'+
-      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Humedad '+h.n+'</div><div class="humlvls">'+HUM_TXT[h.n]+'</div></div></div>'+
+      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Humedad '+h.n+'</div></div></div>'+
       '<div class="humidx"><div><b class="num">'+h.w.toFixed(3)+'</b><span>NDWI (agua superficial)</span></div>'+
       '<div><b class="num">'+h.l.toFixed(3)+'</b><span>LSWI (humedad superficie)</span></div>'+
       '<div><b class="num">'+fmt(h.c)+'</b><span>casas medidas</span></div></div></div>'+
-      combo+'<div style="padding:0 16px 14px">'+nota+'</div></div>';
+      combo+'<div style="padding:0 16px 6px"></div></div>';
     return;
   }
 
@@ -381,7 +380,7 @@ function renderHumedad(){
 const TERM_TXT={'Alto':'Alto (microclima cálido y estable)','Medio':'Medio','Bajo':'Bajo (microclima más fresco/oscilante)'};
 function renderTermico(){
   const box=$('termico');
-  const nota='<div class="humnota">Temperatura de superficie con satélite (MODIS, 1 km) sobre la huella de casas. Riesgo: día caliente (+), noche caliente (+) y <b>amplitud baja</b> (+, menos oscilación = más estable = más favorable). Ranking relativo entre centros (tercios), no umbral oficial. Se actualiza cada quincena.</div>';
+  const nota='';
 
   if(state.eess!=='__all__'){
     const t=TERMICO[state.eess];
@@ -395,11 +394,11 @@ function renderTermico(){
     else if(cls==='alta'&&h&&h.n==='Alto') combo='<div class="humcombo mid">Doble condición ambiental favorable: calor alto + humedad alta. Vigilar aunque el índice aédico esté en '+ia.toFixed(2)+'%.</div>';
     else if(cls==='alta') combo='<div class="humcombo mid">Microclima cálido y estable: favorece el desarrollo larvario y mantiene activo al mosquito.</div>';
     box.innerHTML='<div class="card"><div class="humcard '+cls+'">'+
-      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Térmico '+t.n+'</div><div class="humlvls">'+TERM_TXT[t.n]+'</div></div></div>'+
+      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Térmico '+t.n+'</div></div></div>'+
       '<div class="humidx"><div><b class="num">'+t.d.toFixed(1)+'°C</b><span>LST diurna (calor de día)</span></div>'+
       '<div><b class="num">'+t.no.toFixed(1)+'°C</b><span>LST nocturna (retención)</span></div>'+
       '<div><b class="num">'+t.a.toFixed(1)+'°C</b><span>amplitud (día − noche)</span></div></div></div>'+
-      combo+'<div style="padding:0 16px 14px">'+nota+'</div></div>';
+      combo+'<div style="padding:0 16px 6px"></div></div>';
     return;
   }
 
@@ -433,7 +432,7 @@ const REF_TXT={'Alto':'Alto (vegetación densa, más refugio)','Medio':'Medio','
 function listar(a){ return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' y '+a[a.length-1]; }
 function renderRefugio(){
   const box=$('refugio');
-  const nota='<div class="humnota">Vegetación medida con satélite (Sentinel-2, 10 m) en el entorno de las casas de cada centro (NDVI y su cobertura FVC). Más vegetación = más sombra, humedad y reposo para el <b>mosquito adulto</b> = más refugio. Ranking relativo entre centros (tercios), no umbral oficial. Se actualiza cada quincena.</div>';
+  const nota='';
 
   if(state.eess!=='__all__'){
     const t=REFUGIO[state.eess];
@@ -457,11 +456,11 @@ function renderRefugio(){
       else combo='<div class="humcombo mid">Vegetación densa alrededor de las viviendas: ofrece sombra y reposo al mosquito adulto, aunque las demás señales estén controladas.</div>';
     }
     box.innerHTML='<div class="card"><div class="humcard '+cls+'">'+
-      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Refugio '+t.n+'</div><div class="humlvls">'+REF_TXT[t.n]+'</div></div></div>'+
+      '<div class="humlvl"><span class="dot"></span><div><div class="humlvlt">Refugio '+t.n+'</div></div></div>'+
       '<div class="humidx"><div><b class="num">'+t.v.toFixed(3)+'</b><span>NDVI (vegetación)</span></div>'+
       '<div><b class="num">'+t.f.toFixed(3)+'</b><span>FVC (cobertura vegetal)</span></div>'+
       '<div><b class="num">'+fmt(t.c)+'</b><span>casas medidas</span></div></div></div>'+
-      combo+'<div style="padding:0 16px 14px">'+nota+'</div></div>';
+      combo+'<div style="padding:0 16px 6px"></div></div>';
     return;
   }
 
@@ -794,7 +793,7 @@ function refresh(){
   renderRecip();
   // footer contextual
   const amb = state.eess!=='__all__'?state.eess:(state.red!=='__all__'?'RED '+state.red:'las tres redes');
-  $('foot').textContent='Vista de '+amb+' ('+state.d1+' a '+state.d2+'). Los sectores se clasifican por su índice aédico según la norma MINSA/OPS: bajo <1%, medio/alerta ≥1% y <4%, alto ≥4%.';
+  $('foot').textContent='';
 }
 
 /* ================= ARRANQUE ================= */
