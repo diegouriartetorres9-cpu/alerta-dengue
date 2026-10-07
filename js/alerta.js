@@ -286,6 +286,80 @@ function renderClima(){
   $('climaBox').innerHTML=bnr+'<div class="days">'+cards+'</div>';
 }
 
+/* ================= LEYENDAS DE LAS SECCIONES 5 a 8 =================
+   Cuadros fijos "Cómo leer esta sección" (no dependen de los datos). Se insertan una sola vez
+   al cargar la página, debajo de cada sección. Se pueden plegar con un clic. */
+(function(){var st=document.createElement('style');st.textContent=
+ '.leyenda{margin:12px 0 0;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:12.8px;color:var(--ink);line-height:1.5}'+
+ '.leyenda>summary{cursor:pointer;padding:10px 16px;font-weight:700;font-size:13px;color:var(--ink2);list-style:none}'+
+ '.leyenda>summary::-webkit-details-marker{display:none}'+
+ '.leyenda>summary:before{content:"▸ ";color:var(--teal)}.leyenda[open]>summary:before{content:"▾ "}'+
+ '.leyenda .lb{padding:2px 16px 14px}'+
+ '.leyenda .lrow{display:flex;gap:10px;align-items:flex-start;margin:7px 0}'+
+ '.leyenda .lrow .badge{margin-top:1px;flex:none;min-width:70px;text-align:center}'+
+ '.leyenda .ldot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:4px}'+
+ '.leyenda .ldot.alta{background:var(--high)}.leyenda .ldot.mid{background:var(--mid)}.leyenda .ldot.low{background:var(--low)}'+
+ '.leyenda h5{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);margin:12px 0 4px}'+
+ '.leyenda ul{margin:4px 0 0 18px;padding:0}.leyenda li{margin:3px 0}'+
+ '.leyenda .lnota{margin-top:10px;padding:8px 12px;border-radius:8px;background:var(--canvas);color:var(--ink2);font-size:12px}';
+ document.head.appendChild(st);})();
+const LEYENDAS={
+ clima:
+  '<h5>Qué significan los colores de cada día</h5>'+
+  '<div class="lrow"><span class="badge alta">Alto</span><div>Se espera <b>lluvia de 10 mm o más</b>, o <b>probabilidad de lluvia de 60 % o más con humedad de 80 % o más</b>. El agua de lluvia llena recipientes y en pocos días puede haber larvas: es momento de intensificar el control larvario.</div></div>'+
+  '<div class="lrow"><span class="badge mid">Vigilar</span><div>Hay al menos una condición favorable: <b>humedad de 70 % o más</b>, <b>algo de lluvia</b> (1 mm o más) o <b>temperatura máxima entre 24 °C y 32 °C</b>, que es el rango en que el Aedes se reproduce mejor.</div></div>'+
+  '<div class="lrow"><span class="badge low">Bajo</span><div>No se cumple ninguna de las condiciones anteriores.</div></div>'+
+  '<h5>Cómo leer cada tarjeta</h5><ul>'+
+  '<li><b>28° / 19°</b>: temperatura máxima / mínima del día.</li>'+
+  '<li><b>Humedad</b>: humedad relativa promedio del día.</li>'+
+  '<li><b>Lluvia 2 mm · 40 %</b>: lluvia esperada en milímetros y probabilidad de que llueva.</li></ul>'+
+  '<div class="lnota">Es el <b>pronóstico de los próximos 7 días</b> (servicio Open-Meteo), consultado en vivo al abrir la página. Usa la ubicación del centro de salud elegido; si no eliges uno, el punto promedio de la red o de toda la región. Los criterios de color son prácticos del Alerta, no un umbral oficial del MINSA.</div>',
+ humedad:
+  '<h5>Qué mide</h5><ul>'+
+  '<li><b>NDWI</b> (satélite Sentinel-2): agua superficial y suelo húmedo.</li>'+
+  '<li><b>LSWI</b> (satélite Landsat-8): humedad de la vegetación y de la superficie.</li>'+
+  '<li>Se mide <b>sobre las casas inspeccionadas</b> de cada centro. Valores más altos (menos negativos) = terreno más húmedo.</li></ul>'+
+  '<h5>Qué significan los colores</h5>'+
+  '<div class="lrow"><span class="ldot alta"></span><div><b>Alto</b>: el tercio de centros con el terreno <b>más húmedo</b> de la región.</div></div>'+
+  '<div class="lrow"><span class="ldot mid"></span><div><b>Medio</b>: el tercio intermedio.</div></div>'+
+  '<div class="lrow"><span class="ldot low"></span><div><b>Bajo</b>: el tercio <b>más seco</b>.</div></div>'+
+  '<h5>Por qué importa</h5><div>Un terreno húmedo acumula agua con más facilidad y favorece que aparezcan criaderos, aunque hoy el índice aédico esté bajo.</div>'+
+  '<div class="lnota">⚠️ junto a un centro = <b>humedad alta y además índice aédico alto</b> (4 % o más): las condiciones y los criaderos coinciden. Los niveles son un <b>ranking entre tus centros</b>, no un valor oficial. Es una foto satelital fija: solo cambia cuando se vuelve a correr el cálculo en Colab, no con cada actualización del ADMI.</div>',
+ termico:
+  '<h5>Qué mide</h5><ul>'+
+  '<li>Temperatura de la superficie con el satélite <b>MODIS</b>, sobre las casas de cada centro:</li>'+
+  '<li><b>Día (°C)</b>: cuánto se calienta la zona de día.</li>'+
+  '<li><b>Noche (°C)</b>: cuánto calor retiene de noche.</li>'+
+  '<li><b>Amplitud (°C)</b>: diferencia entre el día y la noche.</li></ul>'+
+  '<h5>Qué hace subir el riesgo</h5><ul>'+
+  '<li><b>Día caliente</b>: las larvas se desarrollan más rápido.</li>'+
+  '<li><b>Noche caliente</b>: la zona no se enfría y el mosquito sigue activo.</li>'+
+  '<li><b>Amplitud baja</b>: un clima estable y cálido favorece al Aedes. <i>Ojo: aquí menos es peor.</i></li></ul>'+
+  '<h5>Qué significan los colores</h5>'+
+  '<div class="lrow"><span class="ldot alta"></span><div><b>Alto</b>: el tercio de centros con el microclima <b>más cálido y estable</b>.</div></div>'+
+  '<div class="lrow"><span class="ldot mid"></span><div><b>Medio</b>: el tercio intermedio.</div></div>'+
+  '<div class="lrow"><span class="ldot low"></span><div><b>Bajo</b>: el tercio <b>más fresco u oscilante</b>.</div></div>'+
+  '<div class="lnota">⚠️ junto a un centro = <b>térmico alto y además índice aédico alto o humedad alta</b>. Los niveles son un <b>ranking entre tus centros</b>, no un valor oficial, y es una foto satelital fija (cambia solo al volver a correr el cálculo en Colab).</div>',
+ refugio:
+  '<h5>Qué mide</h5><ul>'+
+  '<li><b>NDVI</b> (satélite Sentinel-2): qué tan verde es la vegetación (de 0 a 1).</li>'+
+  '<li><b>FVC</b>: qué parte del suelo está cubierta por plantas.</li>'+
+  '<li>Se mide en un radio de <b>20 m alrededor de cada casa</b> inspeccionada.</li></ul>'+
+  '<h5>Qué significan los colores</h5>'+
+  '<div class="lrow"><span class="ldot alta"></span><div><b>Alto</b>: el tercio de centros con <b>más vegetación</b> alrededor de las casas.</div></div>'+
+  '<div class="lrow"><span class="ldot mid"></span><div><b>Medio</b>: el tercio intermedio.</div></div>'+
+  '<div class="lrow"><span class="ldot low"></span><div><b>Bajo</b>: el tercio con <b>menos vegetación</b>.</div></div>'+
+  '<h5>Por qué importa</h5><div>El mosquito adulto descansa en la sombra y la humedad de las plantas. Más vegetación cerca de las viviendas significa más lugares de reposo y más riesgo.</div>'+
+  '<div class="lnota">⚠️ junto a un centro = <b>refugio alto y además índice aédico alto, humedad alta o térmico alto</b>. Si coinciden las cuatro señales (refugio, humedad, térmico e índice aédico), el aviso dice <b>prioridad máxima</b>. Los niveles son un <b>ranking entre tus centros</b>, no un valor oficial, y es una foto satelital fija.</div>'
+};
+function insertarLeyendas(){
+  const pon=(ancla,k,dentro)=>{const el=$(ancla); if(!el||document.getElementById('ley-'+k)) return;
+    const d=document.createElement('details'); d.className='leyenda'; d.id='ley-'+k; d.open=true;
+    d.innerHTML='<summary>📖 Cómo leer esta sección</summary><div class="lb">'+LEYENDAS[k]+'</div>';
+    if(dentro){ d.style.margin='0 18px 18px'; el.parentNode.appendChild(d); } else el.insertAdjacentElement('afterend',d);};
+  pon('climaBox','clima',true); pon('humedad','humedad'); pon('termico','termico'); pon('refugio','refugio');
+}
+
 /* ================= 4 · HUMEDAD ESTRUCTURAL ================= */
 function centrosScope(){
   // centros que aplican al filtro actual (red/centro)
@@ -765,6 +839,7 @@ function refresh(){
 
 /* ================= ARRANQUE ================= */
 window.addEventListener('DOMContentLoaded',()=>{
+  insertarLeyendas();
   initFilters();
   initMap();
   refresh();
