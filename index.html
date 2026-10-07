@@ -47,7 +47,7 @@
 
   <!-- 2 · RESUMEN DE ALERTA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">2</span><h2>Resumen de alerta</h2><span class="sub">Nivel de riesgo por índice aédico de los sectores</span></div>
+    <div class="sectitle"><span class="secnum">2</span><h2>Resumen de alerta</h2></div>
     <div id="banner" class="alertbanner ok"></div>
     <div class="kpis2">
       <div class="kpi"><div class="lab">Viviendas positivas</div><div class="val num" id="kPos">—</div><div class="foot">con larvas</div></div>
@@ -57,7 +57,7 @@
 
   <!-- 3 · MAPA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">3</span><h2>Mapa de calor de criaderos</h2><span class="sub">Dónde se concentran las viviendas positivas a larvas</span></div>
+    <div class="sectitle"><span class="secnum">3</span><h2>Mapa de calor de criaderos</h2></div>
     <div class="card">
       <div class="head"><h3>Mapa de calor de criaderos (viviendas positivas)</h3>
         <div><label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);display:block;margin-bottom:4px">Fondo del mapa</label>
@@ -70,13 +70,13 @@
 
   <!-- 4 · ZONAS POR NIVEL -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">4</span><h2>Zonas por nivel de alerta</h2><span class="sub">Prioriza las zonas en aumento · índice aédico MINSA/OPS</span></div>
+    <div class="sectitle"><span class="secnum">4</span><h2>Zonas por nivel de alerta</h2></div>
     <div id="zonas"></div>
   </section>
 
   <!-- 5 · CLIMA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">5</span><h2>Clima y riesgo ambiental</h2><span class="sub">Condiciones de los próximos días que favorecen los criaderos (humedad, lluvia y temperatura)</span></div>
+    <div class="sectitle"><span class="secnum">5</span><h2>Clima y riesgo ambiental</h2></div>
     <div class="card">
       <div class="climahead">
         <span class="lbl">Clima de: <span class="cen" id="climaCentro">—</span></span>
@@ -89,25 +89,25 @@
 
   <!-- 6 · HUMEDAD ESTRUCTURAL -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">6</span><h2>Humedad estructural y estrés hídrico</h2><span class="sub">Condiciones satelitales de humedad del terreno por centro (NDWI · LSWI) — favorabilidad ambiental para criaderos</span></div>
+    <div class="sectitle"><span class="secnum">6</span><h2>Humedad estructural y estrés hídrico</h2></div>
     <div id="humedad"></div>
   </section>
 
   <!-- 7 · DINÁMICA TÉRMICA -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">7</span><h2>Dinámica térmica de microclima</h2><span class="sub">Temperatura de superficie por centro (MODIS) — calor diurno, retención nocturna y amplitud térmica</span></div>
+    <div class="sectitle"><span class="secnum">7</span><h2>Dinámica térmica de microclima</h2></div>
     <div id="termico"></div>
   </section>
 
   <!-- 8 · REFUGIO ECOLÓGICO -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">8</span><h2>Disponibilidad de refugio ecológico</h2><span class="sub">Vegetación alrededor de las viviendas por centro (NDVI · FVC) — sombra y reposo para el mosquito adulto</span></div>
+    <div class="sectitle"><span class="secnum">8</span><h2>Disponibilidad de refugio ecológico</h2></div>
     <div id="refugio"></div>
   </section>
 
   <!-- 9 · RECIPIENTES -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">9</span><h2>Recipientes por establecimiento</h2><span class="sub">Criaderos positivos a larvas por tipo de recipiente</span></div>
+    <div class="sectitle"><span class="secnum">9</span><h2>Recipientes por establecimiento</h2></div>
     <div class="recipwrap">
       <div class="recipmeta" id="recipMeta"></div>
       <div class="recipgrid" id="recipGrid"></div>
@@ -117,7 +117,7 @@
 
   <!-- 10 · EVOLUCIÓN -->
   <section class="section">
-    <div class="sectitle"><span class="secnum">10</span><h2>Evolución del índice aédico</h2><span class="sub">El riesgo (% de viviendas positivas) mes a mes. Se ajusta a los filtros que elijas.</span></div>
+    <div class="sectitle"><span class="secnum">10</span><h2>Evolución del índice aédico</h2></div>
     <div class="card"><div class="trend"><canvas id="iaChart"></canvas></div></div>
   </section>
 
@@ -125,8 +125,7 @@
   <section class="section">
     <div class="sectitle"><span class="secnum">11</span><h2>Descargar base de datos</h2></div>
     <div class="dlbar">
-      <div class="dltext"><strong>Descargar análisis de alerta (Excel)</strong>
-        <span>Si no eliges filtros, baja <b>todo</b> (las 3 redes). Si eliges algún filtro, baja <b>solo lo que filtraste</b>. Incluye sector, positivas, inspeccionadas, índice aédico y nivel de alerta.</span></div>
+      <div class="dltext"><strong>Descargar análisis de alerta (Excel)</strong></div>
       <button class="btn" id="btnDL">⬇ Descargar Excel</button>
     </div>
     <div class="foot" id="foot"></div>
