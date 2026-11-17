@@ -631,22 +631,37 @@ function _refreshInd(){ // al terminar de cargar: redibuja puntos y burbujas sin
   if(pi!==null){_dotData=pi;_dotUsingInd=true;_hd=pi.map(r=>[r[0],r[1],1]);drawHeat();}
   buildDots(); updateSectorMapa();
 }
+/* ===== Febriles (17-nov): personas con fiebre anotadas en la ficha de inspección (no son casos confirmados).
+   Solo sobre los PUNTOS ROJOS (casas positivas): anillo morado y, si son 2 o más, el número arriba a la derecha.
+   Datos: PUNTOS p[7]=febriles en casas positivas, p[8]=casas positivas con febriles; PUNTOS_IND r[5]=febriles. ===== */
+const FEB_COLOR='#9C27B0';
+(function(){const st=document.createElement('style');st.textContent='.feb-n{font:800 13px/1 system-ui,sans-serif;color:'+FEB_COLOR+';text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff,0 0 3px #fff;white-space:nowrap;pointer-events:auto;cursor:pointer}';document.head.appendChild(st);})();
+const _febRing=(lat,lon,pop,n)=>{const rg=L.circleMarker([lat,lon],{radius:8,color:FEB_COLOR,weight:2.5,fill:false,opacity:1});if(pop)rg.bindPopup(pop);dotLayer.addLayer(rg);
+ if(n>=2){const lb=L.marker([lat,lon],{icon:L.divIcon({className:'',iconSize:[16,12],iconAnchor:[-6,16],html:'<div class="feb-n">'+n+'</div>'}),keyboard:false,zIndexOffset:500});if(pop)lb.bindPopup(pop);dotLayer.addLayer(lb);}};
+const _febTxt=(n,viv)=>n>0?('<br><b style=\'color:'+FEB_COLOR+'\'>'+n+' febril'+(n>1?'es':'')+'</b> <span style=\'color:#6b7d79\'>'+(viv&&viv>1?('en '+viv+' viviendas '):'')+'(reportado en la inspección)</span>'):'';
+function _febLeyenda(){const lg=document.querySelector('.legend');if(!lg||lg.querySelector('.feb-leg'))return;const sp=document.createElement('span');sp.className='feb-leg';sp.style.cssText='display:inline-flex;align-items:center;gap:4px;margin-left:10px;font-size:.85em;vertical-align:middle';sp.innerHTML='<span style="width:11px;height:11px;border-radius:50%;border:2.5px solid '+FEB_COLOR+';display:inline-block;box-sizing:border-box"></span>Con febriles';lg.appendChild(sp);}
 function buildDots(){
+  _febLeyenda();
   dotLayer.clearLayers();
   if(map.getZoom()<ZOOM_DOTS){ if(map.hasLayer(dotLayer))map.removeLayer(dotLayer); return; }
   if(_dotUsingInd){
-    _dotData.forEach(p=>{
+    _dotData.slice().sort((x,y)=>((x[5]||0)>0)-((y[5]||0)>0)).forEach(p=>{   // casas con febriles se dibujan encima
+      const feb=p[5]||0;
       const mk=L.circleMarker([p[0],p[1]],{radius:4,color:'#fff',weight:1,fillColor:'#E53935',fillOpacity:.9});
-      mk.bindPopup('<b style=\'color:#C0392B\'>Vivienda positiva</b><br>'+(p[4]||'')+'<br><span style=\'color:#6b7d79\'>'+(p[3]||'')+'</span>');
+      const pop='<b style=\'color:#C0392B\'>Vivienda positiva</b><br>'+(p[4]||'')+'<br><span style=\'color:#6b7d79\'>'+(p[3]||'')+'</span>'+_febTxt(feb);
+      mk.bindPopup(pop);
       dotLayer.addLayer(mk);
+      if(feb) _febRing(p[0],p[1],pop,feb);
     });
     if(!map.hasLayer(dotLayer))map.addLayer(dotLayer);
     return;
   }
-  _dotData.forEach(p=>{const n=p[3];
+  _dotData.slice().sort((x,y)=>((x[7]||0)>0)-((y[7]||0)>0)).forEach(p=>{const n=p[3];
     const mk=L.circleMarker([p[0],p[1]],{radius:4,color:'#fff',weight:1,fillColor:'#E53935',fillOpacity:.9});
-    mk.bindPopup('<b style=\'color:#C0392B\'>'+n+' vivienda'+(n>1?'s':'')+' positiva'+(n>1?'s':'')+'</b><br>'+(p[4]||'')+'<br><span style=\'color:#6b7d79\'>'+(p[5]||'')+'</span>');
+    const pop='<b style=\'color:#C0392B\'>'+n+' vivienda'+(n>1?'s':'')+' positiva'+(n>1?'s':'')+'</b><br>'+(p[4]||'')+'<br><span style=\'color:#6b7d79\'>'+(p[5]||'')+'</span>'+_febTxt(p[7]||0,p[8]||0);
+    mk.bindPopup(pop);
     dotLayer.addLayer(mk);
+    if((p[7]||0)>0) _febRing(p[0],p[1],pop,p[7]);
   });
   if(!map.hasLayer(dotLayer))map.addLayer(dotLayer);
 }
